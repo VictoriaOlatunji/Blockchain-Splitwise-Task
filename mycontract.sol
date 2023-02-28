@@ -14,52 +14,54 @@ contract SplitWise {
         uint id;
         bool _valid;
     }
-    mapping (address => mapping(address => IOU)) record; // debtor and creditor map to IOU. better accessibility 
-    mapping (address => Debtor) debtorMap; // faster access 
-    Debtor[] recordArr; // debtors to array of creditors, return with less gas.
+    mapping (address => mapping(address => IOU)) register; // to map debtor and creditor map IOU for better accessibility 
+    mapping (address => Debtor) debtorMap; // map debtor to IOU for faster accessibility 
+    Debtor[] registerArr; // debtors to array of creditors, return with less gas.
     
     function add_IOU(address _creditor, int32 _amount) public returns (bool res){ // negative IOU is to resolve the loop
         require(msg.sender != _creditor, "One cannot owes to themself.");
-        // * ignore case that record minus amount < 0 => error
-        if (debtorMap[msg.sender]._valid == false){ // new user; index recordArr by map address to id in debtorMap
+        // * ignore case that register minus amount < 0 => error
+        if (debtorMap[msg.sender]._valid == false){ // new user; 
             IOU memory _IOU = IOU({creditor: _creditor, amount: _amount, creditor_id: 0, _valid: true});
-            Debtor storage debtor = debtorMap[msg.sender]; // initialized with variable outside of the function is required, so that append is possible
-            record[msg.sender][_creditor] = _IOU;
+            Debtor storage debtor = debtorMap[msg.sender]; 
+            register[msg.sender][_creditor] = _IOU;
             debtor.IOUs.push(_IOU); // add an IOU in a debtor's IOU list
             debtor.debtor = msg.sender;
-            debtor.id = recordArr.length;
+            debtor.id = registerArr.length;
             debtor._valid = true;
-            recordArr.push(debtor);
+            registerArr.push(debtor);
             debtorMap[msg.sender] = debtor;
             return true;
         }
-        else if (record[msg.sender][_creditor]._valid == false) { // debtor's new creditor
-            IOU memory _IOU = IOU({creditor: _creditor, amount: _amount, creditor_id: recordArr[debtorMap[msg.sender].id].IOUs.length, _valid: true});
-            record[msg.sender][_creditor] = _IOU;
-            recordArr[debtorMap[msg.sender].id].IOUs.push(_IOU);
+        else if (register[msg.sender][_creditor]._valid == false) { // debtor's new creditor
+            IOU memory _IOU = IOU({creditor: _creditor, amount: _amount, creditor_id: registerArr[debtorMap[msg.sender].id].IOUs.length, _valid: true});
+            register[msg.sender][_creditor] = _IOU;
+            registerArr[debtorMap[msg.sender].id].IOUs.push(_IOU);
             return true;
         }
         else{ // update IOU
-            require(record[msg.sender][_creditor].amount + _amount >= 0, "tx results to negative IOU.");
-            record[msg.sender][_creditor].amount += _amount;
-            recordArr[debtorMap[msg.sender].id].IOUs[record[msg.sender][_creditor].creditor_id].amount += _amount; 
-            if (record[msg.sender][_creditor].amount == 0){
-                record[msg.sender][_creditor]._valid = false;
-                recordArr[debtorMap[msg.sender].id].IOUs[record[msg.sender][_creditor].creditor_id]._valid = false;
+            require(register[msg.sender][_creditor].amount + _amount >= 0, "tx results to negative IOU.");
+            register[msg.sender][_creditor].amount += _amount;
+            registerArr[debtorMap[msg.sender].id].IOUs[register[msg.sender][_creditor].creditor_id].amount += _amount; 
+            if (register[msg.sender][_creditor].amount == 0){
+                register[msg.sender][_creditor]._valid = false;
+                registerArr[debtorMap[msg.sender].id].IOUs[register[msg.sender][_creditor].creditor_id]._valid = false;
             } else {
-                record[msg.sender][_creditor]._valid = true;
-                recordArr[debtorMap[msg.sender].id].IOUs[record[msg.sender][_creditor].creditor_id]._valid = true;
+                register[msg.sender][_creditor]._valid = true;
+                registerArr[debtorMap[msg.sender].id].IOUs[register[msg.sender][_creditor].creditor_id]._valid = true;
             }
             return true;
         }
-        //return false;
+        return false;
     }
 
-    function getrecord() public view returns(Debtor[] memory _recordArr){
-        return recordArr;
+    //function to getregister
+    function getregister() public view returns(Debtor[] memory _registerArr){
+        return registerArr;
     }
 
+     //function lookup to know the amount the debtor owes the creditor
     function lookup(address debtor, address creditor) public view returns(int32 ret){
-        return record[debtor][creditor].amount;
+        return register[debtor][creditor].amount;
     }
 }

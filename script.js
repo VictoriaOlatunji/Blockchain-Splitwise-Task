@@ -36,7 +36,7 @@ var abi = [
 	},
 	{
 		"inputs": [],
-		"name": "getLedger",
+		"name": "getregister",
 		"outputs": [
 			{
 				"components": [
@@ -84,7 +84,7 @@ var abi = [
 					}
 				],
 				"internalType": "struct SplitWise.Debtor[]",
-				"name": "_ledgerArr",
+				"name": "_registerArr",
 				"type": "tuple[]"
 			}
 		],
@@ -121,7 +121,7 @@ var abi = [
 abiDecoder.addABI(abi);
 // call abiDecoder.decodeMethod to use this - see 'getAllFunctionCalls' for more
 
-var contractAddress = '0x474BEF408ACa69F46F8aB9d462493a79B1eb85f0'; // FIXME: fill this in with your contract's address/hash
+var contractAddress = '0x4606E78f7e10a639BDEFB981e9d1880b5cb687DD'; // FIXME: fill this in with your contract's address/hash
 var BlockchainSplitwise = new web3.eth.Contract(abi, contractAddress);
 
 // =============================================================================
@@ -131,7 +131,7 @@ var BlockchainSplitwise = new web3.eth.Contract(abi, contractAddress);
 // Helper functions
 // *Done* TODO: Add any helper functions here! 
 async function getLedger() { // https://stackoverflow.com/questions/71367683/how-to-get-transaction-receipt-event-logs
-	return BlockchainSplitwise.methods.getLedger().call({from: web3.eth.defaultAccount});
+	return BlockchainSplitwise.methods.getregister().call({from: web3.eth.defaultAccount});
 }
 
 async function getNeighbors(node){ // get neighbor of a node (addr, amount) in debtor-creditor(IOU) map
