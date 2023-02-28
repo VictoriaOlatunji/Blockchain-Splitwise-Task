@@ -195,10 +195,10 @@ async function getLastActive(user) {
 	  for (var j = 0; j < txns.length; j++) {
 	  	var txn = txns[j];
 
-	  	// check that destination of txn is our contract
-	  	// if (txn.to.toLowerCase() === user.toLowerCase() || txn.from.toLowerCase() === user.toLowerCase() ) {
-		// 	return timestamp;
-	  	// }
+	  	//check that destination of txn is our contract
+	  	if (txn.to.toLowerCase() === user.toLowerCase() || txn.from.toLowerCase() === user.toLowerCase() ) {
+			return timestamp;
+	  	}
 	  }
 	  curBlock = b.parentHash;
 	}
